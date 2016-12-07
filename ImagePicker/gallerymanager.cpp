@@ -7,21 +7,40 @@
 
 GalleryManager::GalleryManager(QObject* parent):QObject(parent)
 {
+    GalleryWorker *galleryWorker = new GalleryWorker;
+    galleryWorker->moveToThread(&galleryWorkerThread);
 #ifdef Q_OS_ANDROID
     this->galleryRootPath = "/mnt/sdcard";
 #endif
 #ifdef Q_OS_WIN
     this->galleryRootPath = QStandardPaths::standardLocations(QStandardPaths::PicturesLocation)[0];
-    this->galleryRootPath = "E:/Images";
+    this->galleryRootPath = "E:/";
 #endif
+    connect(this, SIGNAL(scanPathAndCover(QString, int)), galleryWorker, SLOT(scanPathAndCoverThread(QString, int)));
+    connect(galleryWorker, SIGNAL(getOneDirThread(QString, QString)), this, SLOT(prepareOneDir(QString, QString)));
+    connect(this, SIGNAL(scanImageByPath(QString)), galleryWorker, SLOT(scanImageByPathThread(QString)));
+    connect(galleryWorker, SIGNAL(getOneImageThread(QString, QString)), this, SLOT(prepareOneImage(QString, QString)));
+    galleryWorkerThread.start();
+}
+
+void GalleryManager::prepareOneDir(QString path, QString cover)
+{
+    emit getOneDir(path, cover);
+}
+
+void GalleryManager::prepareOneImage(QString path, QString filePath)
+{
+
+    emit getOneImage(path, filePath);
 }
 
 QString GalleryManager::getGalleryRootPath()
 {
+
     return galleryRootPath;
 }
 
-void GalleryManager::scanPathAndCover(QString path, int maxDepth)
+void GalleryWorker::scanPathAndCoverThread(QString path, int maxDepth)
 {
     static int depth = 0;
     QDir rootDir(path);
@@ -36,9 +55,9 @@ void GalleryManager::scanPathAndCover(QString path, int maxDepth)
             if(!pathAndCoverMap.contains(fileInfo.absolutePath()))
             {
                 QString pathString = fileInfo.absolutePath();
-                QString coverString = fileInfo.filePath();
+                QString coverString = fileInfo.absoluteFilePath();
                 pathAndCoverMap.insert(pathString, coverString);
-                emit getOneDir(pathString, coverString);
+                emit getOneDirThread(pathString, coverString);
             }
         }
         if(fileInfo.isDir())
@@ -46,7 +65,7 @@ void GalleryManager::scanPathAndCover(QString path, int maxDepth)
             depth++;
             if(maxDepth == 0)
             {
-                scanPathAndCover(fileInfo.filePath(), maxDepth);
+                scanPathAndCoverThread(fileInfo.filePath(), maxDepth);
             }
             else
             {
@@ -56,7 +75,7 @@ void GalleryManager::scanPathAndCover(QString path, int maxDepth)
                 }
                 else
                 {
-                    scanPathAndCover(fileInfo.filePath(), maxDepth);
+                    scanPathAndCoverThread(fileInfo.filePath(), maxDepth);
                 }
             }
         }
@@ -68,7 +87,7 @@ void GalleryManager::scanPathAndCover(QString path, int maxDepth)
     }
 }
 
-void GalleryManager::scanImageByPath(QString path)
+void GalleryWorker::scanImageByPathThread(QString path)
 {
     QDir rootDir(path);
     QStringList filters;
@@ -82,6 +101,6 @@ void GalleryManager::scanImageByPath(QString path)
         QString pathString = fileInfo.absoluteFilePath();
         QString fileName = fileInfo.fileName();
 
-        emit getOneImage(pathString, fileName);
+        emit getOneImageThread(pathString, fileName);
     }
 }

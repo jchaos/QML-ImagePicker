@@ -13,8 +13,8 @@
 * 把Gallery.qml放进资源系统
 * 在需要调用的地方使用组件
 ```
-    Gallery{
-        id:gallery
+    ImagePicker{
+        id:imagePicker
         anchors.fill:parent
         maxDepth:2//遍历深度
         onSelect:{//当点击图片时

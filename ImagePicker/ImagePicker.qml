@@ -2,9 +2,10 @@
 import DjangoX.Gallery 1.0
 import QtQuick.Controls 2.0
 
-Item{
+Rectangle{
     id: root
     anchors.fill: parent
+    color: "#222"
     property int maxDepth: 2
     signal select(string filePath);
 
@@ -35,7 +36,7 @@ Item{
                 model: pathModel
                 Rectangle{
                     id: pathRect
-                    width: (root.width - 5 * flow.spacing) / 4
+                    width: (root.width - 4 * flow.spacing) / 3
                     height: width
                     clip: true
 
@@ -48,7 +49,6 @@ Item{
                             galleryManager.scanImageByPath(path);
                         }
                     }
-
                     Image{
                         id: pathCover
                         source: "file:///"+cover
@@ -57,22 +57,32 @@ Item{
                         fillMode: Image.PreserveAspectCrop
                         sourceSize.width: parent.width
                         sourceSize.height: parent.height
+                        onStatusChanged: {
+                            if(status == Image.Error)
+                            {
+                                pathModel.remove(index)
+                            }
+
+                        }
                     }
                     Rectangle{
                         id:mask
                         anchors.bottom: parent.bottom
-                        color:"black"
+                        color:"#444"
                         width:parent.width
                         height:pathName.height
-                        opacity: 0.5
+                        opacity: 0.8
 
                         Text{
                             id: pathName
                             anchors.right: parent.right
+                            anchors.rightMargin: flow.spacing
                             elide: Text.ElideLeft
-                            width: parent.width
+                            width: parent.width - 2*flow.spacing
                             text: path
                             color: "white"
+                            lineHeight: 1.5
+                            verticalAlignment: Text.AlignVCenter
                         }
                     }
                 }
@@ -99,7 +109,7 @@ Item{
                 model: currentDirModel
                 Rectangle{
                     id: fileRect
-                    width: (root.width - 5 * fileflow.spacing) / 4
+                    width: (root.width - 4 * fileflow.spacing) / 3
                     height: width
                     clip: true
                     Image{
@@ -110,12 +120,29 @@ Item{
                         fillMode: Image.PreserveAspectCrop
                         sourceSize.width: parent.width
                         sourceSize.height: parent.height
+                        onStatusChanged: {
+                            if(status == Image.Error)
+                            {
+                                currentDirModel.remove(index)
+                            }
+                        }
                     }
                     MouseArea{
                         anchors.fill: parent
                         onReleased: {
                             root.select(path);
                         }
+                    }
+                }
+            }
+            add: Transition {
+                SequentialAnimation {
+                    NumberAnimation {
+                        properties: "scale";
+                        from: 0.6
+                        to:1
+                        duration: 100;
+                        easing.type:Easing.OutBack
                     }
                 }
             }

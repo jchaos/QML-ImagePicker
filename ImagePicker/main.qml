@@ -5,12 +5,12 @@ Window {
     visible: true
     width: 640
     height: 480
-    title: qsTr("Hello World")
+    title: qsTr("Image Picker")
 
-    Gallery{
+    ImagePicker{
         id:gallery
         anchors.fill:parent
-        maxDepth:2
+        maxDepth:3
         onSelect:{
             console.log(filePath)
         }
