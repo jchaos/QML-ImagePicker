@@ -4,6 +4,9 @@
 #include <QFileInfoList>
 #include <QDebug>
 #include <QStandardPaths>
+#include <QFile>
+#include <QByteArray>
+#include <QImage>
 
 GalleryManager::GalleryManager(QObject* parent):QObject(parent)
 {
@@ -27,6 +30,39 @@ GalleryManager::GalleryManager(QObject* parent):QObject(parent)
 void GalleryManager::prepareAllDone()
 {
     emit allDone();
+}
+
+void GalleryManager::restore(QString toName, QString fromName)
+{
+    QFile::rename(fromName, toName);
+}
+
+void GalleryManager::reformat(int index, QString path)
+{
+    QFileInfo fileInfo(path);
+    QString baseName = fileInfo.completeBaseName();
+    QString filePath = fileInfo.absolutePath();
+    QFile file(path);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        return;
+    }
+    QString pngCode = "8950";
+    QString jpgCode = "ffd8";
+    QByteArray bt = file.read(2).toHex();
+    file.close();
+    if(bt == pngCode)
+    {
+        QString newName = filePath+"/"+baseName+".png";
+        QFile::rename(path, newName);
+        emit outPut(index, newName);
+    }
+    if(bt == jpgCode)
+    {
+        QString newName = filePath+"/"+baseName+".jpg";
+        QFile::rename(path, newName);
+        emit outPut(index, newName);
+    }
 }
 
 void GalleryManager::prepareOneDir(QString path, QString cover)

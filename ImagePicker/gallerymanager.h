@@ -28,12 +28,15 @@ public:
     QThread galleryWorkerThread;
     GalleryManager(QObject* parent = 0);
     Q_INVOKABLE QString getGalleryRootPath();
+    Q_INVOKABLE void reformat(int index, QString path);
+    Q_INVOKABLE void restore(QString toName, QString fromName);
 signals:
     void getOneDir(QString path, QString cover);
     void getOneImage(QString path, QString fileName);
     void scanPathAndCover(QString, int);
     void scanImageByPath(QString);
     void allDone();
+    void outPut(int index, QString newName);
 public slots:
     void prepareOneDir(QString path, QString cover);
     void prepareOneImage(QString path, QString fileName);

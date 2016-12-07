@@ -12,6 +12,33 @@ Rectangle{
 
     signal select(string filePath);
 
+    GalleryManager {
+        id: galleryManager
+
+        Component.onCompleted: {
+            galleryManager.scanPathAndCover(galleryManager.getGalleryRootPath(), maxDepth);
+        }
+
+        onGetOneDir: {
+            pathModel.append({"path":path, "cover":cover})
+        }
+
+        onGetOneImage: {
+            currentDirModel.append({"path":path, "fileName":fileName})
+        }
+
+        onAllDone:{
+            timer.repeat = true;
+            root.imageIndex = 0;
+            timer.start();
+        }
+
+        onOutPut: {
+            fileRepeater.itemAt(index).source = "file:///"+newName;
+            galleryManager.restore(currentDirModel.get(index).path, newName);
+        }
+    }
+
     ListModel{
         id: pathModel
     }
@@ -103,8 +130,6 @@ Rectangle{
         maximumFlickVelocity: 8000
         visible:false
 
-
-
         Flow{
             id:fileflow
             anchors.horizontalCenter: parent.horizontalCenter
@@ -134,7 +159,8 @@ Rectangle{
                         onStatusChanged: {
                             if(status == Image.Error)
                             {
-                                currentDirModel.remove(index)
+                                //currentDirModel.remove(index);
+                                galleryManager.reformat(index, path);
                             }
                         }
                     }
@@ -165,27 +191,6 @@ Rectangle{
         }
     }
 
-    GalleryManager {
-        id: galleryManager
-
-        Component.onCompleted: {
-            galleryManager.scanPathAndCover(galleryManager.getGalleryRootPath(), maxDepth);
-        }
-
-        onGetOneDir: {
-            pathModel.append({"path":path, "cover":cover})
-        }
-
-        onGetOneImage: {
-            currentDirModel.append({"path":path, "fileName":fileName})
-        }
-
-        onAllDone:{
-            timer.repeat = true;
-            root.imageIndex = 0;
-            timer.start();
-        }
-    }
 
     Timer {
         id:timer

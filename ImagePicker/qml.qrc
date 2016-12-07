@@ -4,6 +4,6 @@
         <file>ImagePicker.qml</file>
     </qresource>
     <qresource prefix="/imagepicker">
-        <file alias="loading">resource/loading.png</file>
+        <file alias="loading">resource/loading.jpg</file>
     </qresource>
 </RCC>
