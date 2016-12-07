@@ -20,7 +20,13 @@ GalleryManager::GalleryManager(QObject* parent):QObject(parent)
     connect(galleryWorker, SIGNAL(getOneDirThread(QString, QString)), this, SLOT(prepareOneDir(QString, QString)));
     connect(this, SIGNAL(scanImageByPath(QString)), galleryWorker, SLOT(scanImageByPathThread(QString)));
     connect(galleryWorker, SIGNAL(getOneImageThread(QString, QString)), this, SLOT(prepareOneImage(QString, QString)));
+    connect(galleryWorker, SIGNAL(allDone()), this, SLOT(prepareAllDone()));
     galleryWorkerThread.start();
+}
+
+void GalleryManager::prepareAllDone()
+{
+    emit allDone();
 }
 
 void GalleryManager::prepareOneDir(QString path, QString cover)
@@ -103,4 +109,5 @@ void GalleryWorker::scanImageByPathThread(QString path)
 
         emit getOneImageThread(pathString, fileName);
     }
+    emit allDone();
 }

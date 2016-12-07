@@ -17,6 +17,7 @@ public slots:
 signals:
     void getOneDirThread(QString path, QString cover);
     void getOneImageThread(QString path, QString fileName);
+    void allDone();
 };
 
 class GalleryManager: public QObject
@@ -32,9 +33,11 @@ signals:
     void getOneImage(QString path, QString fileName);
     void scanPathAndCover(QString, int);
     void scanImageByPath(QString);
+    void allDone();
 public slots:
     void prepareOneDir(QString path, QString cover);
     void prepareOneImage(QString path, QString fileName);
+    void prepareAllDone();
 };
 
 #endif // GALLERYMANAGER_H

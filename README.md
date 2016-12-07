@@ -10,15 +10,16 @@
 * gallerymanager.cpp放入源代码目录
 * 在main函数中注册组件
 ``qmlRegisterType<GalleryManager>("DjangoX.Gallery", 1, 0, "GalleryManager");``
-* 把Gallery.qml放进资源系统
+* ImagePicker.qml放进资源系统
 * 在需要调用的地方使用组件
 ```
     ImagePicker{
         id:imagePicker
         anchors.fill:parent
-        maxDepth:2//遍历深度
-        onSelect:{//当点击图片时
-            console.log(filePath)
+        maxDepth:3  //遍历深度
+        loadingImage: "qrc:/imagepicker/loading"  //加载中图片
+        onSelect:{  //当点击图片时
+            console.log(filePath) //打印图片路径
         }
     }
 ```

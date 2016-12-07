@@ -7,6 +7,9 @@ Rectangle{
     anchors.fill: parent
     color: "#222"
     property int maxDepth: 2
+    property int imageIndex: 0
+    property string loadingImage:""
+
     signal select(string filePath);
 
     ListModel{
@@ -39,6 +42,7 @@ Rectangle{
                     width: (root.width - 4 * flow.spacing) / 3
                     height: width
                     clip: true
+                    color:"#444"
 
                     MouseArea{
                         anchors.fill: parent
@@ -51,6 +55,7 @@ Rectangle{
                     }
                     Image{
                         id: pathCover
+                        //source: "qrc:/imagepicker/loading"
                         source: "file:///"+cover
                         width: parent.width
                         height: parent.height
@@ -62,7 +67,6 @@ Rectangle{
                             {
                                 pathModel.remove(index)
                             }
-
                         }
                     }
                     Rectangle{
@@ -98,6 +102,9 @@ Rectangle{
         contentHeight: fileflow.height + fileflow.spacing * 2
         maximumFlickVelocity: 8000
         visible:false
+
+
+
         Flow{
             id:fileflow
             anchors.horizontalCenter: parent.horizontalCenter
@@ -106,15 +113,19 @@ Rectangle{
             width: parent.width - spacing * 2
             spacing: 10
             Repeater{
+                id: fileRepeater
                 model: currentDirModel
                 Rectangle{
                     id: fileRect
                     width: (root.width - 4 * fileflow.spacing) / 3
                     height: width
                     clip: true
+                    color:"#444"
+                    property alias source: imgFileLoading.source
                     Image{
-                        id: img
-                        source: "file:///"+path
+                        id: imgFileLoading
+                        //source: "file:///"+path
+                        source: loadingImage
                         width: parent.width
                         height: parent.height
                         fillMode: Image.PreserveAspectCrop
@@ -127,22 +138,12 @@ Rectangle{
                             }
                         }
                     }
+
                     MouseArea{
                         anchors.fill: parent
                         onReleased: {
                             root.select(path);
                         }
-                    }
-                }
-            }
-            add: Transition {
-                SequentialAnimation {
-                    NumberAnimation {
-                        properties: "scale";
-                        from: 0.6
-                        to:1
-                        duration: 100;
-                        easing.type:Easing.OutBack
                     }
                 }
             }
@@ -156,6 +157,7 @@ Rectangle{
         anchors.bottom: parent.bottom
         anchors.left: parent.left
         onClicked: {
+            timer.stop()
             flickableDir.visible = true
             flickableFile.visible = false
             returnToDirButton.visible = false
@@ -176,6 +178,28 @@ Rectangle{
 
         onGetOneImage: {
             currentDirModel.append({"path":path, "fileName":fileName})
+        }
+
+        onAllDone:{
+            timer.repeat = true;
+            root.imageIndex = 0;
+            timer.start();
+        }
+    }
+
+    Timer {
+        id:timer
+        interval: 10;
+        repeat: true
+
+        onTriggered: {
+            fileRepeater.itemAt(parent.imageIndex).source = "file:///"+currentDirModel.get(parent.imageIndex).path
+            parent.imageIndex++;
+            if(parent.imageIndex >= currentDirModel.count)
+            {
+                repeat = false;
+                stop();
+            }
         }
     }
 }

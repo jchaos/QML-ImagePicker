@@ -9,7 +9,8 @@ Window {
 
     ImagePicker{
         id:gallery
-        anchors.fill:parent
+        anchors.fill: parent
+        loadingImage: "qrc:/imagepicker/loading"
         maxDepth:3
         onSelect:{
             console.log(filePath)
