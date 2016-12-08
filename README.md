@@ -18,6 +18,7 @@
         anchors.fill:parent
         maxDepth:3  //遍历深度
         loadingImage: "qrc:/imagepicker/loading"  //加载中图片
+        checkImage: "qrc:/imagepicker/check"      //选择图片遮罩
         onSelect:{  //当点击图片时
             console.log(filePath) //打印图片路径
         }

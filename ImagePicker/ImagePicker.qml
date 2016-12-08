@@ -1,6 +1,7 @@
 ﻿import QtQuick 2.7
 import DjangoX.Gallery 1.0
 import QtQuick.Controls 2.0
+import QtQuick.Window 2.2
 
 Rectangle{
     id: root
@@ -9,8 +10,21 @@ Rectangle{
     property int maxDepth: 2
     property int imageIndex: 0
     property string loadingImage:""
-
+    property string checkImage: ""
+    property int checkedIndex:-1
     signal select(string filePath);
+    signal itemCheked(int newIndex);
+
+    onItemCheked: {
+        if(checkedIndex != -1)
+        {
+            fileRepeater.itemAt(checkedIndex).checkImg = false
+            fileRepeater.itemAt(checkedIndex).imageOpacity = 1
+        }
+        fileRepeater.itemAt(newIndex).checkImg = true
+        fileRepeater.itemAt(newIndex).imageOpacity = 0.5
+        checkedIndex = newIndex;
+    }
 
     GalleryManager {
         id: galleryManager
@@ -77,6 +91,7 @@ Rectangle{
                             flickableDir.visible = false
                             flickableFile.visible = true
                             returnToDirButton.visible = true
+                            selectButton.visible = true
                             galleryManager.scanImageByPath(path);
                         }
                     }
@@ -142,11 +157,13 @@ Rectangle{
                 model: currentDirModel
                 Rectangle{
                     id: fileRect
-                    width: (root.width - 4 * fileflow.spacing) / 3
+                    width: (root.width - 6 * fileflow.spacing) / 5
                     height: width
                     clip: true
                     color:"#444"
                     property alias source: imgFileLoading.source
+                    property alias checkImg: checkImg.visible;
+                    property alias imageOpacity: imgFileLoading.opacity
                     Image{
                         id: imgFileLoading
                         //source: "file:///"+path
@@ -162,13 +179,72 @@ Rectangle{
                                 //currentDirModel.remove(index);
                                 galleryManager.reformat(index, path);
                             }
+                            if(status == Image.Ready)
+                            {
+                                state = "aft"
+                            }
                         }
+                        state:"pre"
+                        states:[
+                            State{
+                                name:"pre"
+                                PropertyChanges{
+                                    target:imgFileLoading
+                                    opacity:0
+                                }
+                            },
+                            State{
+                                name:"aft"
+                                PropertyChanges{
+                                    target:imgFileLoading
+                                    opacity:1
+                                }
+                            }
+                        ]
+                        transitions: [
+                            Transition{
+                                from:"aft"
+                                to:"pre"
+                                NumberAnimation{
+                                    property: "opacity"
+                                    duration: 100
+                                }
+                            },
+                            Transition{
+                                from:"pre"
+                                to:"aft"
+                                NumberAnimation{
+                                    property: "opacity"
+                                    duration: 100
+                                }
+                            }
+                        ]
+                    }
+
+                    Image{
+                        id: checkImg
+                        width: Screen.pixelDensity*10
+                        height:width
+                        anchors.centerIn: parent
+                        source:checkImage
+                        fillMode: Image.PreserveAspectCrop
+                        visible: false
+                        z:1
                     }
 
                     MouseArea{
                         anchors.fill: parent
-                        onReleased: {
-                            root.select(path);
+                        onPressed: {
+                            if(root.checkedIndex == index)
+                            {
+                                checkImg.visible = false
+                                root.checkedIndex = -1
+                                imgFileLoading.opacity = 1
+                            }
+                            else
+                            {
+                                root.itemCheked(index);
+                            }
                         }
                     }
                 }
@@ -187,10 +263,31 @@ Rectangle{
             flickableDir.visible = true
             flickableFile.visible = false
             returnToDirButton.visible = false
+            selectButton.visible = false
             currentDirModel.clear()
         }
     }
 
+    Button{
+        id:selectButton
+        text:"select"
+        visible:false
+        anchors.bottom: parent.bottom
+        anchors.right: parent.right
+        onClicked: {
+            if(root.checkedIndex != -1)
+            {
+                root.select(currentDirModel.get(root.checkedIndex).path);
+                fileRepeater.itemAt(checkedIndex).checkImg = false
+                fileRepeater.itemAt(checkedIndex).imageOpacity = 1
+                root.checkedIndex = -1;
+            }
+            else
+            {
+                console.log("you didn't select any image")
+            }
+        }
+    }
 
     Timer {
         id:timer

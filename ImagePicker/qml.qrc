@@ -5,5 +5,6 @@
     </qresource>
     <qresource prefix="/imagepicker">
         <file alias="loading">resource/loading.jpg</file>
+        <file alias="check">resource/ic_check_circle_white_48dp.png</file>
     </qresource>
 </RCC>

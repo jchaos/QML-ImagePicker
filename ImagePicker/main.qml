@@ -11,6 +11,7 @@ Window {
         id:gallery
         anchors.fill: parent
         loadingImage: "qrc:/imagepicker/loading"
+        checkImage: "qrc:/imagepicker/check"
         maxDepth:3
         onSelect:{
             console.log(filePath)
