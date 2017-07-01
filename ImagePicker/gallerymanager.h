@@ -1,4 +1,4 @@
-﻿#ifndef GALLERYMANAGER_H
+#ifndef GALLERYMANAGER_H
 #define GALLERYMANAGER_H
 #include <QObject>
 #include <QString>
@@ -27,6 +27,7 @@ public:
     QString galleryRootPath;
     QThread galleryWorkerThread;
     GalleryManager(QObject* parent = 0);
+    ~GalleryManager();
     Q_INVOKABLE QString getGalleryRootPath();
     Q_INVOKABLE void reformat(int index, QString path);
     Q_INVOKABLE void restore(QString toName, QString fromName);

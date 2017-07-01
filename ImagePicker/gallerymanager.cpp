@@ -1,4 +1,4 @@
-﻿#include "gallerymanager.h"
+#include "gallerymanager.h"
 #include <QDir>
 #include <QFileInfo>
 #include <QFileInfoList>
@@ -146,4 +146,10 @@ void GalleryWorker::scanImageByPathThread(QString path)
         emit getOneImageThread(pathString, fileName);
     }
     emit allDone();
+}
+
+GalleryManager::~GalleryManager()
+{
+    galleryWorkerThread.quit();
+    galleryWorkerThread.wait();
 }
